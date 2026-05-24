@@ -177,26 +177,7 @@ function startServer() {
         res.json({ message: 'Server is running!' });
     });
 
-if (process.env.NODE_ENV === 'production') {
-    const path = require('path');
-    const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
 
-    app.use(express.static(clientDistPath, {
-        maxAge: '1y',
-        immutable: true,
-        setHeaders: (res, filePath) => {
-            if (filePath.endsWith('.js')) {
-                res.setHeader('Content-Type', 'application/javascript');
-            } else if (filePath.endsWith('.css')) {
-                res.setHeader('Content-Type', 'text/css');
-            }
-        }
-    }));
-
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(clientDistPath, 'index.html'));
-    });
-}
 
     // 404 handler (for API routes only in production)
     app.use(notFound);
