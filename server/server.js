@@ -139,7 +139,6 @@ function startServer() {
     };
 
     // Handle preflight OPTIONS requests first
-    app.options('(.*)', cors(corsOptions));
     app.use(cors(corsOptions));
     console.log('✅ CORS middleware enabled');
 
