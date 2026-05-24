@@ -1,118 +1,155 @@
+<div align="center">
+
 # Shortlisto 🚀
 
-> A full-stack recruitment management and online assessment platform built to streamline candidate hiring workflows, application screening, and technical evaluation.
+### Full Stack Recruitment Management & Online Assessment Platform
 
-![Shortlisto Banner](./assets/banner.png)
+A modern full-stack recruitment platform built to streamline hiring workflows, candidate evaluation, technical assessments, and analytics.
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://shortlisto.vercel.app/)
+[![Backend API](https://img.shields.io/badge/Backend-API-blue?style=for-the-badge)](https://shortlisto-production.up.railway.app/health)
+[![React](https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react&logoColor=black)]
+[![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)]
+[![Express](https://img.shields.io/badge/Framework-Express-black?style=for-the-badge&logo=express)]
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)]
+[![Socket.IO](https://img.shields.io/badge/Realtime-Socket.IO-black?style=for-the-badge&logo=socket.io)]
+[![Vercel](https://img.shields.io/badge/Frontend-Vercel-black?style=for-the-badge&logo=vercel)]
+[![Railway](https://img.shields.io/badge/Backend-Railway-purple?style=for-the-badge)]
+
+</div>
+
+---
 
 ## 📌 Overview
 
-Shortlisto is a modern recruitment platform designed to simplify and automate the hiring process for organizations, universities, and recruitment teams.
+Shortlisto is a **full-stack recruitment management platform** designed to simplify and modernize hiring workflows.
 
-It enables recruiters to create hiring drives, build dynamic candidate application forms, manage applications, shortlist candidates, conduct online assessments, and analyze recruitment performance through a centralized dashboard.
+It enables recruiters and organizations to:
 
-Unlike a basic job portal, Shortlisto combines **Applicant Tracking System (ATS) workflows + candidate assessment capabilities** into a unified full-stack platform.
+- manage recruitment drives
+- shortlist candidates efficiently
+- conduct technical assessments
+- evaluate applicant performance
+- track analytics and hiring progress
+- manage recruitment settings and workflows
 
----
-
-## ✨ Key Features
-
-### Recruitment Drive Management
-- Create and manage hiring drives
-- Support for different recruitment workflows:
-  - Campus Hiring
-  - Lateral Hiring
-  - Custom Recruitment Drives
-- Configure drive timelines and metadata
+The platform is built with a scalable production-style architecture using modern web technologies.
 
 ---
 
-### Dynamic Application Form Builder
-- Build fully customizable candidate application forms
-- Supported field types:
-  - Text
-  - Email
-  - Phone
-  - Number
-  - Textarea
-  - Select
-  - Multi-select
-  - Checkbox
-  - Date
-  - File Upload
-  - URL
-- Required/optional field configuration
-- Placeholder and validation support
-- Section grouping and field ordering
+## 🌐 Live Deployment
+
+### Frontend
+🔗 https://shortlisto.vercel.app/
+
+### Backend API
+🔗 https://shortlisto-production.up.railway.app/
+
+### Health Check
+🔗 https://shortlisto-production.up.railway.app/health
 
 ---
 
-### Candidate Management
-- Candidate registration and profile creation
-- Draft application save functionality
-- Duplicate application prevention
-- Candidate profile management
-- Resume and document handling
-- Academic and professional details capture
+## ✨ Core Features
+
+### 🔐 Authentication & Authorization
+- Secure JWT-based authentication
+- Role-based access control
+- Protected routes
+- Session validation
+- Secure password hashing using bcrypt
 
 ---
 
-### Candidate Screening & Shortlisting
-- Candidate filtering and search
-- Shortlisting workflows
-- Custom query-based filtering
-- Candidate application review dashboard
+### 👥 Candidate Management
+- Add and manage candidates
+- Candidate profile tracking
+- Application management
+- Candidate evaluation workflow
+- Recruitment pipeline management
 
 ---
 
-### Online Assessment Engine
-- Technical assessment creation and management
-- Multiple assessment support per candidate
-- Candidate assessment login workflow
-- Assessment instructions and waiting room
-- Timed assessment sessions
-- Answer submission workflow
-- Result generation and score tracking
+### 📋 Recruitment Drive Management
+- Create recruitment drives
+- Manage active hiring campaigns
+- Drive-specific candidate handling
+- Recruitment workflow tracking
 
 ---
 
-### Assessment Security Features
-- Randomized question ordering
-- Randomized option ordering
-- Candidate-specific assessment sessions
-- Controlled access workflow
+### 📝 Online Assessment System
+- Technical assessment creation
+- Question management
+- Assessment scheduling
+- Candidate test participation
+- Automated result storage
 
 ---
 
-### Analytics Dashboard
-- Recruitment performance insights
+### 📊 Analytics Dashboard
+- Hiring analytics
 - Candidate statistics
-- Assessment completion tracking
-- Shortlisted candidate metrics
-- Drive-wise analytics
+- Assessment performance insights
+- Recruitment metrics
+- Dashboard reporting
 
 ---
 
-### Communication System
-- Email notification workflows
-- Async email queue processing
-- Configurable email settings
+### ⚡ Realtime Communication
+- Socket.IO powered realtime infrastructure
+- JWT-authenticated websocket communication
+- Live event handling
 
 ---
 
-### Performance Optimization
-- Server-side caching
-- Paginated APIs
-- Optimized filtering logic
+### ⚙️ System Configuration
+- Platform settings management
+- Configurable recruitment workflows
+- Admin-level control panel
 
 ---
 
-### Security
-- JWT Authentication
-- Password hashing with bcrypt
+### 🛡 Security Features
 - Helmet security middleware
-- MongoDB query sanitization
-- Input validation middleware
-- Protected admin routes
+- MongoDB injection protection
+- CORS protection
+- Input validation
+- JWT authentication
+- Secure API middleware
+
+---
+
+### 🚀 Performance Optimizations
+- Response compression
+- API caching
+- Optimized Vite production build
+- Code splitting / chunk optimization
+- Static asset optimization
+
+---
+
+## 🏗 System Architecture
+
+```text
+┌───────────────────────┐
+│   React Frontend      │
+│   (Vercel Hosting)    │
+└──────────┬────────────┘
+           │
+           │ REST API / Socket.IO
+           ▼
+┌───────────────────────┐
+│   Node.js + Express   │
+│   (Railway Hosting)   │
+└──────────┬────────────┘
+           │
+           ▼
+┌───────────────────────┐
+│    MongoDB Atlas      │
+│     Cloud Database    │
+└───────────────────────┘
+```
 
 ---
 
@@ -121,217 +158,199 @@ Unlike a basic job portal, Shortlisto combines **Applicant Tracking System (ATS)
 ### Frontend
 - React.js
 - Vite
-- Tailwind CSS
-- React Query
-- React Router
-- Socket.IO Client
+- React Router DOM
+- Axios
+- TanStack React Query
+- React Hot Toast
+- Lucide React
 
 ### Backend
 - Node.js
 - Express.js
-- MongoDB
-- Mongoose
-- JWT Authentication
 - Socket.IO
+- JWT Authentication
+- BcryptJS
+- Winston Logging
+- Node Cache
 - Nodemailer
 
-### Utilities / Tooling
-- Node Cache
-- XLSX
-- PapaParse
+### Database
+- MongoDB Atlas
+- Mongoose ODM
+
+### Security
 - Helmet
+- CORS
+- Express Validator
 - Express Mongo Sanitize
 
----
-
-## 🏗 System Architecture
-
-```text
-Frontend (React + Vite)
-        ↓
-REST APIs / Socket Communication
-        ↓
-Backend (Node.js + Express)
-        ↓
-Business Logic / Middleware
-        ↓
-MongoDB Database
-        ↓
-Email Queue / Assessment Engine / Analytics
-```
+### Deployment
+- Vercel (Frontend)
+- Railway (Backend)
+- MongoDB Atlas (Database)
 
 ---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```bash
 Shortlisto/
 │
-├── client/
+├── client/                 # Frontend (React + Vite)
 │   ├── src/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── layouts/
-│   │   ├── pages/
-│   │   │   ├── admin/
-│   │   │   ├── candidate/
-│   │   │   └── public/
-│   │   ├── utils/
-│   │   └── App.jsx
+│   ├── public/
+│   └── package.json
 │
-├── server/
+├── server/                 # Backend (Node + Express)
+│   ├── routes/
 │   ├── controllers/
 │   ├── middleware/
 │   ├── models/
-│   ├── routes/
-│   ├── utils/
 │   ├── workers/
-│   └── server.js
+│   ├── services/
+│   └── package.json
 │
 └── README.md
 ```
 
 ---
 
-## ⚙️ Installation & Setup
+## ⚙️ Local Setup
 
 ### Clone Repository
 
 ```bash
-git clone https://github.com/your-username/shortlisto.git
-cd shortlisto
+git clone https://github.com/Mangalam-17/Shortlisto.git
+cd Shortlisto
 ```
 
 ---
 
-### Backend Setup
-
-```bash
-cd server
-npm install
-```
-
-Create `.env` file:
-
-```env
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-
-SMTP_HOST=your_smtp_host
-SMTP_PORT=your_smtp_port
-SMTP_USER=your_email
-SMTP_PASS=your_password
-```
-
-Run backend:
-
-```bash
-npm run dev
-```
-
----
-
-### Frontend Setup
+### Install Frontend Dependencies
 
 ```bash
 cd client
 npm install
 ```
 
-Create `.env`:
+---
 
-```env
-VITE_API_BASE_URL=http://localhost:5000/api
-```
-
-Run frontend:
+### Install Backend Dependencies
 
 ```bash
-npm run dev
+cd ../server
+npm install
 ```
 
 ---
 
 ## 🔐 Environment Variables
 
-Required variables include:
+### Backend (`server/.env`)
+
+```env
+PORT=8000
+NODE_ENV=development
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_super_secure_secret
+ALLOWED_ORIGINS=http://localhost:5173
+```
+
+---
+
+### Frontend (`client/.env`)
+
+```env
+VITE_API_BASE_URL=http://localhost:8000/api
+```
+
+---
+
+## ▶ Run Locally
 
 ### Backend
-- `PORT`
-- `MONGO_URI`
-- `JWT_SECRET`
-- `SMTP_HOST`
-- `SMTP_PORT`
-- `SMTP_USER`
-- `SMTP_PASS`
+
+```bash
+cd server
+npm run dev
+```
+
+---
 
 ### Frontend
-- `VITE_API_BASE_URL`
+
+```bash
+cd client
+npm run dev
+```
+
+---
+
+## API Modules
+
+Available backend modules:
+
+- `/api/auth`
+- `/api/drives`
+- `/api/dashboard`
+- `/api/candidates`
+- `/api/assessments`
+- `/api/questions`
+- `/api/results`
+- `/api/analytics`
+- `/api/settings`
 
 ---
 
 ## 📸 Screenshots
 
-Add project screenshots here:
-
-- Dashboard
-- Candidate Application Form
-- Recruitment Drive Management
-- Assessment Interface
-- Results Dashboard
-- Analytics View
-
-Example:
+Add your application screenshots here:
 
 ```markdown
-![Dashboard](./assets/dashboard.png)
+![Dashboard](./screenshots/dashboard.png)
+![Assessment](./screenshots/assessment.png)
+![Candidate Management](./screenshots/candidates.png)
 ```
 
 ---
 
-## 🚀 Future Improvements
+## Deployment Architecture
 
-- Role-based recruiter access
-- Multi-admin support
-- Resume parsing
-- AI-based candidate matching
-- Interview scheduling module
-- Cloud file storage integration
-- Advanced reporting exports
-- Redis-based distributed caching
-- Audit logging
-- Notification center
+### Frontend Hosting
+**Vercel**
+
+### Backend Hosting
+**Railway**
+
+### Database
+**MongoDB Atlas**
 
 ---
 
-## 🧠 Learning Outcomes
+## Future Enhancements
 
-This project demonstrates:
-
-- Full-stack application architecture
-- REST API development
-- Authentication & authorization
-- Dynamic form generation
-- Database schema design
-- Assessment workflow engineering
-- Real-time communication
-- Async job processing
-- Performance optimization
-- Security best practices
+- Email notification workflows
+- Advanced analytics dashboards
+- Interview scheduling module
+- Resume parsing integration
+- AI-based candidate scoring
+- Exportable recruitment reports
 
 ---
 
 ## 👨‍💻 Author
 
-**Mangalam Mishra**
+**Mangalam Vaishre**
 
-Software Developer | Full Stack Developer
-
-Portfolio: [https://my-portfolio-ecru-xi-31.vercel.app/]
+- GitHub: https://github.com/Mangalam-17
+- LinkedIn: Add your LinkedIn profile here
 
 ---
 
-## 📄 License
+<div align="center">
 
-This project is intended for educational and portfolio demonstration purposes.
+### ⭐ If you like this project, consider starring the repository!
+
+Built with ❤️ using MERN Stack
+
+</div>
