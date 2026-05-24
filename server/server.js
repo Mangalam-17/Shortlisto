@@ -113,11 +113,15 @@ function startServer() {
     // CORS configuration
     const allowedOrigins = process.env.ALLOWED_ORIGINS
         ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-        : ['http://localhost:3000', 'http://localhost:5173'];
+        : [
+            process.env.CLIENT_URL,
+            'http://localhost:3000',
+            'http://localhost:5173'
+          ].filter(Boolean);
 
     console.log('✅ CORS allowed origins:', allowedOrigins);
 
-    app.use(cors({
+    const corsOptions = {
         origin: function (origin, callback) {
             // Allow requests with no origin (mobile apps, curl, server-to-server)
             if (!origin) return callback(null, true);
@@ -125,28 +129,18 @@ function startServer() {
                 callback(null, true);
             } else {
                 console.warn(`⚠️  CORS blocked origin: ${origin}`);
-                callback(new Error('Not allowed by CORS'));
+                // Return false instead of throwing — prevents server crash
+                callback(null, false);
             }
         },
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-    }));
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-auth-token']
+    };
 
-    // Handle preflight requests explicitly
-    app.options('*', cors({
-        origin: function (origin, callback) {
-            if (!origin) return callback(null, true);
-            if (allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-    }));
+    // Handle preflight OPTIONS requests first
+    app.options('*', cors(corsOptions));
+    app.use(cors(corsOptions));
     console.log('✅ CORS middleware enabled');
 
     app.use(express.json({ limit: '10mb' }));
