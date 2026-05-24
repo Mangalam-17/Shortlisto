@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@layer base {
+    :root {
+        --primary: #4843D2;
+        --secondary: #64748B;
+        --background: #F8FAFC;
+        --surface: #FFFFFF;
+        --text-primary: #0F172A;
+        --text-secondary: #475569;
+    }
+
+    body {
+        margin: 0;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: var(--background);
+        color: var(--text-primary);
+        font-family: "Century Gothic", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        -webkit-text-size-adjust: 100%;
+        overflow-x: hidden;
+        /* Always reserve scrollbar space so navbar never shifts */
+        scrollbar-gutter: stable;
+    }
+
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Ensure tables scroll horizontally on mobile */
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@layer components {
+    .standard-shadow {
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    .card-panel {
+        @apply bg-white border border-slate-200 rounded-lg shadow-sm;
+    }
+
+    .nav-item-active {
+        @apply bg-blue-50 text-blue-700;
+    }
+
+    .animate-indeterminate-bar {
+        width: 30%;
+        animation: indeterminate-bar 1s ease-in-out infinite;
+    }
+
+    @keyframes indeterminate-bar {
+        0% {
+            transform: translateX(-100%);
+        }
+        50% {
+            transform: translateX(200%);
+        }
+        100% {
+            transform: translateX(-100%);
+        }
+    }
+}
+
+/* Page Transitions */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+}
