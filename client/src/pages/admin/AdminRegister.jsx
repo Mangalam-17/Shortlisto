@@ -88,7 +88,11 @@ const AdminRegister = () => {
             try {
                 const res = await api.get('/auth/setup-status');
                 setPageState(res.data.registrationOpen ? 'first-run' : 'closed');
-            } catch { setPageState('closed'); }
+            } catch {
+                // If API is unreachable, default to showing the form (first-run)
+                // so the user isn't stuck on a blank page
+                setPageState('first-run');
+            }
         };
         init();
     }, [inviteToken]);
@@ -221,8 +225,10 @@ const AdminRegister = () => {
                         <h2 className="text-2xl font-bold text-white tracking-tight">
                             {pageState === 'invite-valid' ? 'Accept Invite' : 'Create account'}
                         </h2>
-                        <p className="text-white/40 text-[13px] mt-1">
-                            {pageState === 'checking'      && 'Checking availability...'}
+                        <p className="text-white/40 text-[13px] mt-1 flex items-center gap-1.5">
+                            {pageState === 'checking' && (
+                                <><Loader2 size={11} className="animate-spin inline-block" /> Checking availability...</>
+                            )}
                             {pageState === 'first-run'     && 'Set up your admin account to get started.'}
                             {pageState === 'invite-valid'  && 'Complete your account setup below.'}
                             {pageState === 'invite-invalid'&& 'This invite link is invalid or has expired.'}
