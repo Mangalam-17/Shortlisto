@@ -289,6 +289,11 @@ const AdminRegister = () => {
 
                     {/* Form */}
                     {isFormVisible && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        >
                         <motion.form
                             className="space-y-4"
                             onSubmit={onSubmit}
@@ -296,17 +301,17 @@ const AdminRegister = () => {
                             transition={{ duration: 0.5, ease: 'easeInOut' }}
                         >
                             {/* Name */}
-                            <motion.div variants={staggerItem}>
+                            <div>
                                 <label className="block text-[11px] font-semibold text-white/40 uppercase tracking-[0.15em] mb-1.5">Full Name</label>
                                 <div className="relative">
                                     <User className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25" size={14} />
                                     <input type="text" name="name" value={name} onChange={onChange} required
                                         placeholder="Your full name" className={inputCls} />
                                 </div>
-                            </motion.div>
+                            </div>
 
                             {/* Email */}
-                            <motion.div variants={staggerItem}>
+                            <div>
                                 <label className="block text-[11px] font-semibold text-white/40 uppercase tracking-[0.15em] mb-1.5">Work Email</label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25" size={14} />
@@ -318,10 +323,10 @@ const AdminRegister = () => {
                                 {pageState === 'invite-valid' && (
                                     <p className="text-[11px] text-white/20 mt-1">Email is locked to your invite.</p>
                                 )}
-                            </motion.div>
+                            </div>
 
                             {/* Password + strength bar */}
-                            <motion.div variants={staggerItem}>
+                            <div>
                                 <label className="block text-[11px] font-semibold text-white/40 uppercase tracking-[0.15em] mb-1.5">Password</label>
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25" size={14} />
@@ -362,10 +367,10 @@ const AdminRegister = () => {
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-                            </motion.div>
+                            </div>
 
                             {/* Submit button */}
-                            <motion.div variants={staggerItem} className="pt-1">
+                            <div className="pt-1">
                                 <motion.button
                                     type="submit"
                                     disabled={loading || success}
@@ -395,19 +400,20 @@ const AdminRegister = () => {
                                         )}
                                     </AnimatePresence>
                                 </motion.button>
-                            </motion.div>
+                            </div>
                         </motion.form>
+                        </motion.div>
                     )}
 
-                    <motion.p variants={staggerItem} className="mt-6 text-center text-[12px] text-white/30">
+                    <p className="mt-6 text-center text-[12px] text-white/30">
                         Already have an account?{' '}
                         <button onClick={() => navigate('/admin/login')}
                             className="text-rose-500 hover:text-rose-400 font-semibold transition-colors">Sign in</button>
-                    </motion.p>
-                    <motion.p variants={staggerItem} className="mt-3 text-center">
+                    </p>
+                    <p className="mt-3 text-center">
                         <button onClick={() => navigate('/')}
                             className="text-[11px] text-white/20 hover:text-white/40 transition-colors">← Back to home</button>
-                    </motion.p>
+                    </p>
                 </motion.div>
             </motion.div>
         </div>
