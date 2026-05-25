@@ -19,6 +19,10 @@ const signToken = (adminId) => {
 /* ─── GET /api/auth/setup-status ─── */
 exports.getSetupStatus = async (req, res) => {
     try {
+        // Disable caching — this must always reflect live DB state
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
         const adminCount = await Admin.countDocuments({ inviteAccepted: true });
         res.json({ registrationOpen: adminCount === 0 });
     } catch (err) {
