@@ -87,8 +87,7 @@ const AdminRegister = () => {
             }
             try {
                 const res = await api.get('/auth/setup-status', {
-                    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
-                    params: { _t: Date.now() }  // cache buster
+                    params: { _t: Date.now() }
                 });
                 setPageState(res.data.registrationOpen ? 'first-run' : 'closed');
             } catch {

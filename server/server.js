@@ -135,7 +135,7 @@ function startServer() {
         },
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-auth-token']
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-auth-token', 'Cache-Control', 'Pragma']
     };
 
     // Handle preflight OPTIONS requests first
