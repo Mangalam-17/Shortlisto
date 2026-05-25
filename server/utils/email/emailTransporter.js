@@ -20,7 +20,7 @@ class EmailTransporter {
                 waited += 200;
             }
             if (mongoose.connection.readyState !== 1) {
-                console.warn('⚠️  Email transporter: DB not ready, skipping config load');
+                console.warn('⚠️  Email transporter: DB not ready after 10s, skipping config load');
                 return;
             }
 
@@ -63,23 +63,31 @@ class EmailTransporter {
 
             const transporter = nodemailer.createTransport(config);
 
-            // Verify connection — if it fails, don't store the broken transporter
-            await new Promise((resolve) => {
-                transporter.verify((error) => {
-                    if (error) {
-                        console.error('❌ SMTP verification failed:', error.message);
-                        console.error(`   Config: host=${config.host || config.service}, port=${config.port}, secure=${config.secure}, requireTLS=${config.requireTLS}`);
-                        // Still store it — verify can fail for network reasons but send might work
+            // Verify with a 10s timeout — never hang forever
+            await Promise.race([
+                new Promise((resolve) => {
+                    transporter.verify((error) => {
+                        if (error) {
+                            console.error('❌ SMTP verification failed:', error.message);
+                            console.error(`   Config: host=${config.host || config.service}, port=${config.port}, secure=${config.secure}, requireTLS=${config.requireTLS}`);
+                        } else {
+                            console.log('✅ SMTP transporter verified successfully');
+                        }
+                        // Store regardless — verify can fail for network reasons but send might work
                         this.transporter = transporter;
                         this.from = settings.user;
-                    } else {
-                        console.log('✅ SMTP transporter verified successfully');
+                        resolve();
+                    });
+                }),
+                new Promise((resolve) => {
+                    setTimeout(() => {
+                        console.warn('⚠️  SMTP verify timed out after 10s — storing transporter anyway');
                         this.transporter = transporter;
                         this.from = settings.user;
-                    }
-                    resolve();
-                });
-            });
+                        resolve();
+                    }, 10000);
+                })
+            ]);
         } catch (error) {
             console.error('❌ Email transporter config error:', error.message);
         }
@@ -115,7 +123,12 @@ class EmailTransporter {
         };
 
         try {
-            const result = await this.transporter.sendMail(mailOptions);
+            const result = await Promise.race([
+                this.transporter.sendMail(mailOptions),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('SMTP send timed out after 15s. Check your SMTP host and port settings.')), 15000)
+                )
+            ]);
             console.log(`✅ Email sent to ${to} — messageId: ${result.messageId}`);
             return result;
         } catch (error) {

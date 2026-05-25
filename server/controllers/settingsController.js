@@ -41,12 +41,13 @@ exports.updateEmailSettings = async (req, res) => {
     if (typeof pass === 'string' && pass.length > 0) {
         update.pass = encrypt(pass);
     }
-    const doc = await EmailSettings.findOneAndUpdate(
+    await EmailSettings.findOneAndUpdate(
         { key: 'smtp' },
         { $set: update },
         { upsert: true, returnDocument: 'after' }
     );
-    await reloadFromDb();
+    // Fire-and-forget — don't block the response waiting for SMTP verification
+    reloadFromDb().catch(err => console.error('SMTP reload error:', err.message));
     return res.json({ msg: 'SMTP settings updated' });
 };
 
