@@ -223,7 +223,7 @@ const AdminRegister = () => {
                     {/* Heading */}
                     <motion.div variants={staggerItem} className="mb-8">
                         <h2 className="text-2xl font-bold text-white tracking-tight">
-                            {pageState === 'invite-valid' ? 'Accept Invite' : 'Create account'}
+                            {pageState === 'invite-valid' ? 'Accept Invite' : pageState === 'closed' ? 'Access Restricted' : 'Create account'}
                         </h2>
                         <p className="text-white/40 text-[13px] mt-1 flex items-center gap-1.5">
                             {pageState === 'checking' && (
@@ -254,13 +254,27 @@ const AdminRegister = () => {
                             <motion.div key="closed"
                                 initial={{ opacity: 0, y: -8, height: 0 }} animate={{ opacity: 1, y: 0, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }}
-                                className="mb-5 p-4 rounded-xl border border-amber-500/20 bg-amber-500/10">
-                                <p className="text-[12px] font-semibold text-amber-400">Invite Required</p>
-                                <p className="text-[12px] text-amber-400/70 mt-0.5">An admin account already exists. You need an invite link to register.</p>
-                                <button onClick={() => navigate('/admin/login')}
-                                    className="mt-2.5 text-[11px] font-semibold text-rose-500 hover:text-rose-400 transition-colors underline underline-offset-4">
-                                    Go to Sign In →
-                                </button>
+                                className="mb-5 p-5 rounded-xl border border-amber-500/25 bg-amber-500/8 space-y-3">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <AlertTriangle size={15} className="text-amber-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[13px] font-semibold text-white">Invite Required</p>
+                                        <p className="text-[12px] text-white/40 mt-1 leading-relaxed">
+                                            An admin account already exists. New admins need an invite link sent by an existing admin.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="border-t border-white/5 pt-3 flex flex-col gap-2">
+                                    <button onClick={() => navigate('/admin/login')}
+                                        className="w-full py-2.5 bg-white text-black text-[12px] font-semibold rounded-lg hover:bg-white/90 transition-all">
+                                        Sign In Instead →
+                                    </button>
+                                    <p className="text-[11px] text-white/25 text-center">
+                                        Already have an invite? Check your email for the invite link.
+                                    </p>
+                                </div>
                             </motion.div>
                         )}
                         {error && (
