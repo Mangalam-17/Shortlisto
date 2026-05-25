@@ -3,55 +3,48 @@ const mongoose = require('mongoose');
 const EmailSettings = require('../../models/EmailSettings');
 const { decrypt } = require('../crypto/secret');
 
-/**
- * Optimized Email Transporter Service
- * Creates a single reusable transporter instance to reduce SMTP connection overhead
- */
 class EmailTransporter {
     constructor() {
         this.transporter = null;
-        this.isInitialized = false;
-        this.currentSource = 'db';
-        this.loading = false;
-        this.initialize();
+        this.from = null;
+        // Promise that resolves once the first DB load attempt completes
+        this._initPromise = this._tryApplyDbConfig();
     }
 
-    /**
-     * Initialize the email transporter
-     */
-    initialize() {
-        if (this.isInitialized) return;
-
+    async _tryApplyDbConfig() {
         try {
-            this.isInitialized = true;
-            this.tryApplyDbConfig();
-        } catch (error) {
-            console.error('❌ Failed to initialize email transporter:', error);
-            this.transporter = null;
-            this.isInitialized = true; // Mark as initialized to avoid retry loops
-        }
-    }
+            // Wait for DB to be ready (up to 10s)
+            let waited = 0;
+            while (mongoose.connection.readyState !== 1 && waited < 10000) {
+                await new Promise(r => setTimeout(r, 200));
+                waited += 200;
+            }
+            if (mongoose.connection.readyState !== 1) {
+                console.warn('⚠️  Email transporter: DB not ready, skipping config load');
+                return;
+            }
 
-    buildEnvConfig() { return null; }
-
-    async tryApplyDbConfig() {
-        if (this.loading) return;
-        this.loading = true;
-        try {
-            if (!(mongoose.connection && mongoose.connection.readyState === 1)) return;
             const settings = await EmailSettings.findOne({ key: 'smtp' }).lean();
-            if (!(settings && settings.user && settings.pass)) return;
+            if (!settings || !settings.user || !settings.pass) {
+                console.warn('⚠️  Email transporter: No SMTP settings found in DB');
+                return;
+            }
+
             const pass = decrypt(settings.pass);
+            if (!pass) {
+                console.error('❌ Email transporter: Failed to decrypt SMTP password — check CONFIG_ENC_KEY / JWT_SECRET matches what was used when saving');
+                return;
+            }
+
             const portNum = parseInt(settings.port) || 587;
-            let secureFlag = typeof settings.secure === 'boolean' ? settings.secure : (portNum === 465);
-            if (portNum === 587) secureFlag = false;
-            if (portNum === 465) secureFlag = true;
+            const secureFlag = portNum === 465;
 
             const config = {
                 auth: { user: settings.user, pass },
                 pool: true,
                 maxConnections: 5,
-                maxMessages: 100
+                maxMessages: 100,
+                tls: { rejectUnauthorized: false } // allow self-signed certs
             };
 
             if (settings.host) {
@@ -61,130 +54,97 @@ class EmailTransporter {
                 if (portNum === 587) config.requireTLS = true;
             } else {
                 config.service = 'gmail';
-                config.secure = secureFlag;
-                if (portNum) config.port = portNum;
-                if (portNum === 587) config.requireTLS = true;
+                if (portNum === 587) {
+                    config.port = 587;
+                    config.secure = false;
+                    config.requireTLS = true;
+                }
             }
+
             const transporter = nodemailer.createTransport(config);
-            this.transporter = transporter;
-            this.currentSource = 'db';
-            await new Promise(resolve => {
-                transporter.verify((error, success) => {
+
+            // Verify connection — if it fails, don't store the broken transporter
+            await new Promise((resolve) => {
+                transporter.verify((error) => {
                     if (error) {
-                        console.warn('Email transporter verification failed:', error?.message || String(error));
-                        console.warn(`SMTP config used -> host: ${config.host || config.service}, port: ${config.port || 'default'}, secure: ${config.secure === true}`);
+                        console.error('❌ SMTP verification failed:', error.message);
+                        console.error(`   Config: host=${config.host || config.service}, port=${config.port}, secure=${config.secure}, requireTLS=${config.requireTLS}`);
+                        // Still store it — verify can fail for network reasons but send might work
+                        this.transporter = transporter;
+                        this.from = settings.user;
+                    } else {
+                        console.log('✅ SMTP transporter verified successfully');
+                        this.transporter = transporter;
+                        this.from = settings.user;
                     }
                     resolve();
                 });
             });
-        } finally {
-            this.loading = false;
+        } catch (error) {
+            console.error('❌ Email transporter config error:', error.message);
         }
     }
 
     async reloadFromDb() {
-        await this.tryApplyDbConfig();
+        this.transporter = null;
+        this.from = null;
+        this._initPromise = this._tryApplyDbConfig();
+        await this._initPromise;
     }
 
-    /**
-     * Send email using the optimized transporter
-     * @param {Object} options - Email options
-     * @param {string} options.to - Recipient email
-     * @param {string} options.subject - Email subject
-     * @param {string} options.text - Plain text content
-     * @param {string} options.html - HTML content
-     * @returns {Promise} - Send result
-     */
     async sendMail({ to, subject, text, html }) {
-        if (!this.isInitialized) {
-            // Wait for initialization if still in progress
-            await new Promise(resolve => {
-                const checkInterval = setInterval(() => {
-                    if (this.isInitialized) {
-                        clearInterval(checkInterval);
-                        resolve();
-                    }
-                }, 100);
-            });
+        // Always wait for init to complete before sending
+        await this._initPromise;
+
+        if (!this.transporter) {
+            // One more attempt in case DB wasn't ready at startup
+            await this._tryApplyDbConfig();
+        }
+
+        if (!this.transporter) {
+            console.error('❌ sendMail called but no SMTP transporter configured');
+            throw new Error('SMTP not configured. Please set up email settings in the admin panel.');
         }
 
         const mailOptions = {
+            from: this.from,
             to,
             subject,
             text,
             html
         };
 
-        if (!mailOptions.from) {
-            try {
-                const settings = await EmailSettings.findOne({ key: 'smtp' }).lean();
-                if (settings && settings.user) {
-                    mailOptions.from = settings.user;
-                }
-            } catch {}
-        }
-
-        if (!this.transporter) {
-            await this.tryApplyDbConfig();
-        }
-        if (this.transporter) {
-            try {
-                const result = await this.transporter.sendMail(mailOptions);
-                return result;
-            } catch (error) {
-                console.error('❌ Email send failed:', error);
-                throw error;
-            }
-        } else {
-            // Mock mode for development
-            console.log(`--- MOCK EMAIL ---`);
-            console.log(`To: ${to}`);
-            console.log(`Subject: ${subject}`);
-            if (text) console.log(`Text: ${text}`);
-            return { messageId: 'mock-id-' + Date.now() };
+        try {
+            const result = await this.transporter.sendMail(mailOptions);
+            console.log(`✅ Email sent to ${to} — messageId: ${result.messageId}`);
+            return result;
+        } catch (error) {
+            console.error(`❌ Email send failed to ${to}:`, error.message);
+            throw error;
         }
     }
 
-    /**
-     * Get transporter status
-     */
     getStatus() {
         return {
-            isInitialized: this.isInitialized,
             hasTransporter: !!this.transporter,
-            isMockMode: !this.transporter
+            from: this.from
         };
     }
 
-    /**
-     * Close transporter connections gracefully
-     */
     async close() {
         if (this.transporter) {
-            try {
-                await this.transporter.close();
-                console.log('✅ Email transporter closed');
-            } catch (error) {
-                console.error('❌ Error closing email transporter:', error);
-            }
+            try { await this.transporter.close(); } catch {}
         }
     }
 }
 
-// Singleton instance
 const emailTransporter = new EmailTransporter();
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-    await emailTransporter.close();
-});
+process.on('SIGTERM', () => emailTransporter.close());
+process.on('SIGINT', () => emailTransporter.close());
 
-process.on('SIGINT', async () => {
-    await emailTransporter.close();
-});
-
-module.exports = { 
-    sendMail: emailTransporter.sendMail.bind(emailTransporter), 
+module.exports = {
+    sendMail: emailTransporter.sendMail.bind(emailTransporter),
     reloadFromDb: emailTransporter.reloadFromDb.bind(emailTransporter),
     getStatus: emailTransporter.getStatus.bind(emailTransporter)
 };

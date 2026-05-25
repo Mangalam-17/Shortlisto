@@ -57,7 +57,9 @@ const Settings = () => {
             setInviteEmail('');
             fetchInvites();
         } catch (err) {
-            toast.error(err.response?.data?.msg || 'Failed to send invite');
+            const data = err.response?.data;
+            const msg = data?.hint || data?.error || data?.msg || 'Failed to send invite';
+            toast.error(msg, { duration: 8000 });
         } finally { setInviting(false); }
     };
 
@@ -105,9 +107,11 @@ const Settings = () => {
             const recipient = (testTo || form.user || '').trim();
             if (!recipient) { toast.error('Enter a recipient email'); setTesting(false); return; }
             const res = await api.post('/settings/email/test', { to: recipient });
-            toast.success(`Test email sent (id: ${res.data.messageId})`);
+            toast.success(`Test email sent! (id: ${res.data.messageId})`);
         } catch (err) {
-            toast.error(err.response?.data?.msg || 'SMTP test failed');
+            const data = err.response?.data;
+            const msg = data?.hint || data?.error || data?.msg || 'SMTP test failed';
+            toast.error(msg, { duration: 8000 });
         } finally { setTesting(false); }
     };
 

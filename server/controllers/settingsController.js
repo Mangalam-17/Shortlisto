@@ -55,11 +55,21 @@ exports.testEmail = async (req, res) => {
     const { to, subject, text } = req.body || {};
     const settings = await EmailSettings.findOne({ key: 'smtp' }).lean();
     if (!settings || !settings.user || !settings.pass) {
-        return res.status(400).json({ msg: 'SMTP settings are not configured' });
+        return res.status(400).json({ msg: 'SMTP settings are not configured. Please save your SMTP settings first.' });
     }
     if (!to) {
         return res.status(400).json({ msg: 'Recipient email (to) is required' });
     }
+
+    // Verify decryption works
+    const { decrypt } = require('../utils/crypto/secret');
+    const decryptedPass = decrypt(settings.pass);
+    if (!decryptedPass) {
+        return res.status(400).json({ 
+            msg: 'Failed to decrypt SMTP password. This usually means the encryption key changed. Please re-save your SMTP settings with the password again.' 
+        });
+    }
+
     try {
         const result = await sendMail({
             to,
@@ -68,6 +78,15 @@ exports.testEmail = async (req, res) => {
         });
         return res.json({ ok: true, messageId: result.messageId });
     } catch (err) {
-        return res.status(400).json({ msg: 'SMTP test failed', error: err.message });
+        // Return the actual SMTP error so the user knows what to fix
+        return res.status(400).json({ 
+            msg: 'SMTP test failed', 
+            error: err.message,
+            hint: err.message?.includes('Invalid login') || err.message?.includes('Username and Password not accepted')
+                ? 'Gmail requires an App Password (not your account password). Go to myaccount.google.com → Security → 2-Step Verification → App passwords, generate one, and use that as the password here.'
+                : err.message?.includes('ECONNREFUSED') || err.message?.includes('ETIMEDOUT')
+                ? 'Cannot connect to SMTP server. Check the host and port settings.'
+                : undefined
+        });
     }
 };
