@@ -1,163 +1,71 @@
-const nodemailer = require('nodemailer');
-const mongoose = require('mongoose');
+const { Resend } = require('resend');
 const EmailSettings = require('../../models/EmailSettings');
-const { decrypt } = require('../crypto/secret');
 
-class EmailTransporter {
-    constructor() {
-        this.transporter = null;
-        this.from = null;
-        // Promise that resolves once the first DB load attempt completes
-        this._initPromise = this._tryApplyDbConfig();
+/**
+ * Email sender using Resend API (HTTPS — works on Railway free/hobby plans).
+ * The "from" address is always read from MongoDB so changes in Settings
+ * take effect immediately without a server restart.
+ */
+
+let _resend = null;
+
+function getResendClient() {
+    if (_resend) return _resend;
+    const key = process.env.RESEND_API_KEY;
+    if (!key) {
+        throw new Error(
+            'RESEND_API_KEY is not set. Add it in your Railway environment variables.'
+        );
     }
-
-    async _tryApplyDbConfig() {
-        try {
-            // Wait for DB to be ready (up to 10s)
-            let waited = 0;
-            while (mongoose.connection.readyState !== 1 && waited < 10000) {
-                await new Promise(r => setTimeout(r, 200));
-                waited += 200;
-            }
-            if (mongoose.connection.readyState !== 1) {
-                console.warn('⚠️  Email transporter: DB not ready after 10s, skipping config load');
-                return;
-            }
-
-            const settings = await EmailSettings.findOne({ key: 'smtp' }).lean();
-            if (!settings || !settings.user || !settings.pass) {
-                console.warn('⚠️  Email transporter: No SMTP settings found in DB');
-                return;
-            }
-
-            const pass = decrypt(settings.pass);
-            if (!pass) {
-                console.error('❌ Email transporter: Failed to decrypt SMTP password — check CONFIG_ENC_KEY / JWT_SECRET matches what was used when saving');
-                return;
-            }
-
-            const portNum = parseInt(settings.port) || 587;
-            const secureFlag = portNum === 465;
-
-            const config = {
-                auth: { user: settings.user, pass },
-                pool: true,
-                maxConnections: 5,
-                maxMessages: 100,
-                tls: { rejectUnauthorized: false } // allow self-signed certs
-            };
-
-            if (settings.host) {
-                config.host = settings.host;
-                config.port = portNum;
-                config.secure = secureFlag;
-                if (portNum === 587) config.requireTLS = true;
-            } else {
-                config.service = 'gmail';
-                if (portNum === 587) {
-                    config.port = 587;
-                    config.secure = false;
-                    config.requireTLS = true;
-                }
-            }
-
-            const transporter = nodemailer.createTransport(config);
-
-            // Verify with a 10s timeout — never hang forever
-            await Promise.race([
-                new Promise((resolve) => {
-                    transporter.verify((error) => {
-                        if (error) {
-                            console.error('❌ SMTP verification failed:', error.message);
-                            console.error(`   Config: host=${config.host || config.service}, port=${config.port}, secure=${config.secure}, requireTLS=${config.requireTLS}`);
-                        } else {
-                            console.log('✅ SMTP transporter verified successfully');
-                        }
-                        // Store regardless — verify can fail for network reasons but send might work
-                        this.transporter = transporter;
-                        this.from = settings.user;
-                        resolve();
-                    });
-                }),
-                new Promise((resolve) => {
-                    setTimeout(() => {
-                        console.warn('⚠️  SMTP verify timed out after 10s — storing transporter anyway');
-                        this.transporter = transporter;
-                        this.from = settings.user;
-                        resolve();
-                    }, 10000);
-                })
-            ]);
-        } catch (error) {
-            console.error('❌ Email transporter config error:', error.message);
-        }
-    }
-
-    async reloadFromDb() {
-        this.transporter = null;
-        this.from = null;
-        this._initPromise = this._tryApplyDbConfig();
-        await this._initPromise;
-    }
-
-    async sendMail({ to, subject, text, html }) {
-        // Always wait for init to complete before sending
-        await this._initPromise;
-
-        if (!this.transporter) {
-            // One more attempt in case DB wasn't ready at startup
-            await this._tryApplyDbConfig();
-        }
-
-        if (!this.transporter) {
-            console.error('❌ sendMail called but no SMTP transporter configured');
-            throw new Error('SMTP not configured. Please set up email settings in the admin panel.');
-        }
-
-        const mailOptions = {
-            from: this.from,
-            to,
-            subject,
-            text,
-            html
-        };
-
-        try {
-            const result = await Promise.race([
-                this.transporter.sendMail(mailOptions),
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('SMTP send timed out after 15s. Check your SMTP host and port settings.')), 15000)
-                )
-            ]);
-            console.log(`✅ Email sent to ${to} — messageId: ${result.messageId}`);
-            return result;
-        } catch (error) {
-            console.error(`❌ Email send failed to ${to}:`, error.message);
-            throw error;
-        }
-    }
-
-    getStatus() {
-        return {
-            hasTransporter: !!this.transporter,
-            from: this.from
-        };
-    }
-
-    async close() {
-        if (this.transporter) {
-            try { await this.transporter.close(); } catch {}
-        }
-    }
+    _resend = new Resend(key);
+    return _resend;
 }
 
-const emailTransporter = new EmailTransporter();
+/**
+ * Always reads the from address live from DB.
+ * Falls back to onboarding@resend.dev only if nothing is configured yet.
+ */
+async function getFromAddress() {
+    try {
+        const settings = await EmailSettings.findOne({ key: 'smtp' }).lean();
+        if (settings && settings.user) {
+            return settings.user;
+        }
+    } catch (err) {
+        console.warn('⚠️  Could not read from address from DB:', err.message);
+    }
+    // Resend's test address — works without domain verification
+    return 'onboarding@resend.dev';
+}
 
-process.on('SIGTERM', () => emailTransporter.close());
-process.on('SIGINT', () => emailTransporter.close());
+async function sendMail({ to, subject, text, html }) {
+    const client = getResendClient();
+    const from = await getFromAddress();
 
-module.exports = {
-    sendMail: emailTransporter.sendMail.bind(emailTransporter),
-    reloadFromDb: emailTransporter.reloadFromDb.bind(emailTransporter),
-    getStatus: emailTransporter.getStatus.bind(emailTransporter)
-};
+    const payload = { from, to, subject };
+    if (html)  payload.html = html;
+    if (text)  payload.text = text;
+    if (!html && !text) payload.text = subject;
+
+    const { data, error } = await client.emails.send(payload);
+
+    if (error) {
+        console.error('❌ Resend email failed:', JSON.stringify(error));
+        throw new Error(error.message || JSON.stringify(error));
+    }
+
+    console.log(`✅ Email sent to ${to} from ${from} via Resend — id: ${data.id}`);
+    return { messageId: data.id };
+}
+
+// No-op — kept for API compatibility (SMTP used to need this)
+async function reloadFromDb() {}
+
+function getStatus() {
+    return {
+        hasTransporter: !!process.env.RESEND_API_KEY,
+        provider: 'resend'
+    };
+}
+
+module.exports = { sendMail, reloadFromDb, getStatus };

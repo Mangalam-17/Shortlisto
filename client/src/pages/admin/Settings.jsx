@@ -153,48 +153,34 @@ const Settings = () => {
                     <span className={`text-[11px] font-semibold uppercase tracking-wider ${sectionTitle}`}>SMTP Configuration</span>
                 </div>
                 <form onSubmit={onSubmit} className="p-6 space-y-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Resend info banner */}
+                    <div className={`flex items-start gap-3 p-4 rounded-xl border ${isDark ? 'bg-blue-500/8 border-blue-500/20' : 'bg-blue-50 border-blue-200'}`}>
+                        <Mail size={14} className="text-blue-400 mt-0.5 flex-shrink-0" />
                         <div>
-                            <label className={labelCls}>SMTP Host</label>
-                            <div className="relative">
-                                <Server size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 ${muted}`} />
-                                <input type="text" name="host" value={form.host} onChange={onChange} disabled={loading}
-                                    placeholder="smtp.gmail.com" className={`${inputCls} pl-9`} />
-                            </div>
-                        </div>
-                        <div>
-                            <label className={labelCls}>Port</label>
-                            <input type="number" name="port" value={form.port} onChange={onChange} disabled={loading}
-                                className={inputCls} />
-                        </div>
-                        <div>
-                            <label className={labelCls}>Username (From)</label>
-                            <div className="relative">
-                                <Mail size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 ${muted}`} />
-                                <input type="email" name="user" value={form.user} onChange={onChange} disabled={loading}
-                                    placeholder="name@company.com" className={`${inputCls} pl-9`} />
-                            </div>
-                        </div>
-                        <div>
-                            <label className={labelCls}>Password</label>
-                            <div className="relative">
-                                <KeyRound size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 ${muted}`} />
-                                <input type={showPass ? 'text' : 'password'} name="pass" value={form.pass} onChange={onChange} disabled={loading}
-                                    placeholder={hasPass ? '•••••••• (leave blank to keep)' : 'App password'}
-                                    className={`${inputCls} pl-9 pr-10`} />
-                                <button type="button" onClick={() => setShowPass(v => !v)}
-                                    className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 transition-colors ${muted} hover:text-rose-500`}>
-                                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
-                                </button>
-                            </div>
-                            <p className={`mt-1 text-[11px] ${muted}`}>Leave empty to keep current password</p>
+                            <p className={`text-[12px] font-semibold ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>Powered by Resend</p>
+                            <p className={`text-[11px] mt-0.5 leading-relaxed ${isDark ? 'text-blue-400/70' : 'text-blue-600/70'}`}>
+                                Emails are sent via Resend API. The address below is shown to recipients as the sender.
+                                For custom domains, verify them at <span className="font-semibold">resend.com/domains</span>.
+                            </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2.5">
-                        <input id="secure" type="checkbox" name="secure" checked={form.secure} onChange={onChange} disabled={loading}
-                            className="w-4 h-4 rounded border-gray-300 text-rose-500 focus:ring-rose-400 cursor-pointer" />
-                        <label htmlFor="secure" className={`text-[13px] font-medium cursor-pointer ${muted}`}>Enable TLS/SSL</label>
+
+                    <div className="max-w-md">
+                        <label className={labelCls}>From Email Address</label>
+                        <div className="relative">
+                            <Mail size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 ${muted}`} />
+                            <input
+                                type="email" name="user" value={form.user}
+                                onChange={onChange} disabled={loading} required
+                                placeholder="noreply@yourcompany.com"
+                                className={`${inputCls} pl-9`}
+                            />
+                        </div>
+                        <p className={`mt-1.5 text-[11px] ${muted}`}>
+                            This is the address candidates and admins will see emails coming from. Saved to database — changes take effect immediately.
+                        </p>
                     </div>
+
                     <div className="flex justify-end">
                         <button type="submit" disabled={saving || loading}
                             className="flex items-center gap-2 px-5 py-2.5 bg-rose-500 text-white rounded-xl text-[13px] font-semibold hover:bg-rose-600 transition-all active:scale-95 disabled:opacity-50 shadow-sm shadow-rose-500/20">
@@ -220,7 +206,7 @@ const Settings = () => {
                             <Send size={13} />{testing ? 'Sending...' : 'Send Test'}
                         </button>
                     </div>
-                    <p className={`mt-1.5 text-[11px] ${muted}`}>Leave empty to use the username field above.</p>
+                    <p className={`mt-1.5 text-[11px] ${muted}`}>Sends a test email from the address saved above.</p>
                 </div>
             </div>
 
