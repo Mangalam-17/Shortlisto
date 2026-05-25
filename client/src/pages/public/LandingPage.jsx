@@ -1,6 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, useInView as useFramerInView, useAnimation } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Zap, Shield, BarChart3, Users, FileText, Clock, ChevronRight } from 'lucide-react';
+
+/* ─── Typewriter hook ─── */
+function useTypewriter(text, speed = 55, startDelay = 600) {
+    const [displayed, setDisplayed] = useState('');
+    const [done, setDone] = useState(false);
+    useEffect(() => {
+        setDisplayed('');
+        setDone(false);
+        let i = 0;
+        const timeout = setTimeout(() => {
+            const interval = setInterval(() => {
+                i++;
+                setDisplayed(text.slice(0, i));
+                if (i >= text.length) {
+                    clearInterval(interval);
+                    setDone(true);
+                }
+            }, speed);
+            return () => clearInterval(interval);
+        }, startDelay);
+        return () => clearTimeout(timeout);
+    }, [text, speed, startDelay]);
+    return { displayed, done };
+}
 
 /* ─── Animated counter ─── */
 function useCounter(target, duration = 1600, start = false) {
@@ -53,10 +78,27 @@ const steps = [
     { n: '03', title: 'Get Your Shortlist', desc: 'Scores calculated instantly. You get a ranked shortlist with proctoring insights.' },
 ];
 
+/* ─── Animation variants ─── */
+const fadeUp = {
+    hidden: { opacity: 0, y: 28 },
+    visible: (delay = 0) => ({
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay }
+    })
+};
+
 export default function LandingPage() {
     const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
     const [statsRef, statsInView] = useInView(0.4);
+
+    // Dashboard scroll-trigger
+    const dashboardRef = useRef(null);
+    const dashboardInView = useFramerInView(dashboardRef, { once: true, margin: '-80px' });
+
+    // Typewriter for "Assess Faster."
+    const { displayed: typedText, done: typeDone } = useTypewriter('Assess Faster.', 55, 500);
 
     const c1 = useCounter(stats[0].value, 1400, statsInView);
     const c2 = useCounter(stats[1].value, 1800, statsInView);
@@ -68,7 +110,12 @@ export default function LandingPage() {
         <div className="bg-[#080808] text-white min-h-screen font-sans overflow-x-hidden">
 
             {/* ── NAVBAR ── */}
-            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#080808]/90 backdrop-blur-xl">
+            <motion.nav
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#080808]/90 backdrop-blur-xl"
+            >
                 <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
                     <img src="/shortlisto-img.png" alt="Shortlisto" style={{ width: '130px' }} className="h-auto object-contain" />
                     <div className="hidden md:flex items-center space-x-7">
@@ -97,7 +144,7 @@ export default function LandingPage() {
                         </div>
                     </div>
                 )}
-            </nav>
+            </motion.nav>
 
             {/* ── HERO ── */}
             <section className="relative pt-32 pb-20 px-6 text-center overflow-hidden">
@@ -105,18 +152,53 @@ export default function LandingPage() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-rose-500/8 rounded-full blur-[100px] pointer-events-none" />
 
                 <div className="relative z-10 max-w-3xl mx-auto">
-                    {/* Headline */}
+
+                    {/* ── Staggered headline ── */}
                     <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter leading-[1.0] mb-5">
-                        <span className="text-white">Hire Smarter.</span><br />
-                        <span className="text-rose-500">Assess Faster.</span>
+                        {/* Line 1: slides up */}
+                        <motion.span
+                            className="block text-white"
+                            variants={fadeUp}
+                            initial="hidden"
+                            animate="visible"
+                            custom={0.1}
+                        >
+                            Hire Smarter.
+                        </motion.span>
+
+                        {/* Line 2: typewriter, starts after line 1 */}
+                        <span className="block text-rose-500 min-h-[1.1em]">
+                            {typedText}
+                            {/* Blinking cursor until typing is done */}
+                            {!typeDone && (
+                                <motion.span
+                                    animate={{ opacity: [1, 0, 1] }}
+                                    transition={{ duration: 0.8, repeat: Infinity }}
+                                    className="inline-block w-[3px] h-[0.85em] bg-rose-500 ml-1 align-middle rounded-sm"
+                                />
+                            )}
+                        </span>
                     </h1>
 
-                    <p className="text-white/50 text-[15px] md:text-[16px] max-w-xl mx-auto leading-relaxed mb-8">
+                    {/* Subtitle */}
+                    <motion.p
+                        className="text-white/50 text-[15px] md:text-[16px] max-w-xl mx-auto leading-relaxed mb-8"
+                        variants={fadeUp}
+                        initial="hidden"
+                        animate="visible"
+                        custom={0.7}
+                    >
                         Shortlisto automates your recruitment pipeline — from drive creation to ranked shortlists — so your team focuses on people, not process.
-                    </p>
+                    </motion.p>
 
                     {/* CTAs */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+                    <motion.div
+                        className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6"
+                        variants={fadeUp}
+                        initial="hidden"
+                        animate="visible"
+                        custom={0.85}
+                    >
                         <button onClick={() => navigate('/admin/register')}
                             className="group flex items-center gap-2 px-6 py-3 bg-white text-black font-semibold text-[14px] rounded-xl hover:bg-white/90 transition-all active:scale-95 shadow-lg shadow-white/10">
                             Start for Free <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
@@ -125,58 +207,89 @@ export default function LandingPage() {
                             className="flex items-center gap-2 px-6 py-3 border border-white/10 text-white/60 font-medium text-[14px] rounded-xl hover:border-white/20 hover:text-white transition-all">
                             Sign In <ChevronRight size={14} />
                         </button>
-                    </div>
+                    </motion.div>
 
                     {/* Trust badges */}
-                    <div className="flex items-center justify-center gap-5 flex-wrap">
+                    <motion.div
+                        className="flex items-center justify-center gap-5 flex-wrap"
+                        variants={fadeUp}
+                        initial="hidden"
+                        animate="visible"
+                        custom={1.0}
+                    >
                         {['No credit card required', 'Setup in 5 minutes', 'Cancel anytime'].map(t => (
                             <span key={t} className="flex items-center gap-1.5 text-[12px] text-white/30">
                                 <CheckCircle2 size={12} className="text-emerald-500" />{t}
                             </span>
                         ))}
-                    </div>
+                    </motion.div>
                 </div>
 
-                {/* Dashboard mockup */}
-                <div className="relative z-10 mt-14 max-w-4xl mx-auto">
+                {/* ── Dashboard mockup float-up ── */}
+                <motion.div
+                    ref={dashboardRef}
+                    className="relative z-10 mt-14 max-w-4xl mx-auto"
+                    initial={{ opacity: 0, y: 60 }}
+                    animate={dashboardInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+                >
                     <div className="relative rounded-2xl border border-white/8 bg-white/[0.03] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
                         <div className="flex items-center gap-1.5 px-4 py-3 border-b border-white/5 bg-white/[0.02]">
                             {[0,1,2].map(i => <div key={i} className="w-2.5 h-2.5 rounded-full bg-white/10" />)}
                             <div className="ml-3 h-4 w-40 rounded bg-white/5" />
                         </div>
                         <div className="p-5 grid grid-cols-4 gap-3">
-                            {[['Recruitment Drives','12','+3 this week'],['Active Candidates','248','+24 this week'],['Shortlisted','67','+12 this week'],['Assessments','8','+2 this week']].map(([label, val, change]) => (
-                                <div key={label} className="rounded-xl bg-white/[0.04] border border-white/5 p-3.5">
+                            {[['Recruitment Drives','12','+3 this week'],['Active Candidates','248','+24 this week'],['Shortlisted','67','+12 this week'],['Assessments','8','+2 this week']].map(([label, val, change], i) => (
+                                <motion.div
+                                    key={label}
+                                    className="rounded-xl bg-white/[0.04] border border-white/5 p-3.5"
+                                    initial={{ opacity: 0, y: 16 }}
+                                    animate={dashboardInView ? { opacity: 1, y: 0 } : {}}
+                                    transition={{ duration: 0.5, ease: 'easeOut', delay: 0.3 + i * 0.08 }}
+                                >
                                     <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1.5">{label}</p>
                                     <p className="text-xl font-black text-white">{val}</p>
                                     <p className="text-[10px] text-emerald-400 mt-1">↑ {change}</p>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                         <div className="px-5 pb-5 grid grid-cols-3 gap-3">
-                            {[['Frontend Engineer Drive','48 candidates','Live'],['Backend Assessment','32 candidates','Scheduled'],['Data Analyst Batch','61 candidates','Ended']].map(([name, count, status]) => (
-                                <div key={name} className="rounded-xl bg-white/[0.04] border border-white/5 p-3.5 flex items-center justify-between">
+                            {[['Frontend Engineer Drive','48 candidates','Live'],['Backend Assessment','32 candidates','Scheduled'],['Data Analyst Batch','61 candidates','Ended']].map(([name, count, status], i) => (
+                                <motion.div
+                                    key={name}
+                                    className="rounded-xl bg-white/[0.04] border border-white/5 p-3.5 flex items-center justify-between"
+                                    initial={{ opacity: 0, y: 16 }}
+                                    animate={dashboardInView ? { opacity: 1, y: 0 } : {}}
+                                    transition={{ duration: 0.5, ease: 'easeOut', delay: 0.55 + i * 0.08 }}
+                                >
                                     <div>
                                         <p className="text-[11px] font-semibold text-white/70">{name}</p>
                                         <p className="text-[10px] text-white/30 mt-0.5">{count}</p>
                                     </div>
                                     <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${status === 'Live' ? 'bg-emerald-500/15 text-emerald-400' : status === 'Scheduled' ? 'bg-blue-500/15 text-blue-400' : 'bg-white/8 text-white/30'}`}>{status}</span>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#080808] to-transparent pointer-events-none" />
                     </div>
-                </div>
+                </motion.div>
             </section>
 
             {/* ── STATS ── */}
             <section ref={statsRef} className="py-12 border-y border-white/5 bg-white/[0.02]">
                 <div className="max-w-4xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
                     {stats.map((s, i) => (
-                        <div key={i}>
-                            <p className="text-3xl font-black text-white tabular-nums">{counters[i].toLocaleString()}{s.suffix}</p>
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                            transition={{ duration: 0.5, ease: 'easeOut', delay: i * 0.1 }}
+                        >
+                            <p className="text-3xl font-black text-white tabular-nums">
+                                {counters[i].toLocaleString()}{s.suffix}
+                            </p>
                             <p className="text-[11px] font-medium text-white/30 uppercase tracking-widest mt-1">{s.label}</p>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </section>
