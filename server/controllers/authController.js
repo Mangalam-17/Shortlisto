@@ -156,16 +156,20 @@ exports.sendAdminInvite = async (req, res) => {
         const expiry = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
 
         // Upsert — update existing pending invite or create new one
+        // Note: name has a default for pending invites since it's required by schema
         await Admin.findOneAndUpdate(
             { email, inviteAccepted: false },
             {
-                email,
-                inviteToken: rawToken,
-                inviteTokenExpiry: expiry,
-                inviteAccepted: false,
-                invitedBy: req.admin.id
+                $set: {
+                    email,
+                    inviteToken: rawToken,
+                    inviteTokenExpiry: expiry,
+                    inviteAccepted: false,
+                    invitedBy: req.admin.id
+                },
+                $setOnInsert: { name: email } // placeholder name until they register
             },
-            { upsert: true, new: true, setDefaultsOnInsert: true }
+            { upsert: true, new: true }
         );
 
         // Build invite URL
@@ -207,7 +211,12 @@ exports.sendAdminInvite = async (req, res) => {
 
     } catch (err) {
         console.error('Send invite error:', err.message);
-        res.status(500).json({ msg: 'Server Error' });
+        res.status(500).json({ 
+            msg: err.message || 'Failed to send invite',
+            hint: err.message?.toLowerCase().includes('domain')
+                ? 'Email domain not verified in Resend. The invite was saved — share this link manually: ' 
+                : undefined
+        });
     }
 };
 

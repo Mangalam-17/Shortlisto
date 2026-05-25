@@ -59,6 +59,9 @@ async function sendMail({ to, subject, text, html }) {
             if (retry.error) {
                 throw new Error(retry.error.message || JSON.stringify(retry.error));
             }
+            if (!retry.data) {
+                throw new Error('Resend returned no data on retry');
+            }
             console.log(`✅ Email sent to ${to} via onboarding@resend.dev (fallback) — id: ${retry.data.id}`);
             return { messageId: retry.data.id };
         }
