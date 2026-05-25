@@ -63,9 +63,9 @@ exports.testEmail = async (req, res) => {
         return res.status(400).json({
             msg: 'Email send failed',
             error: err.message,
-            hint: err.message?.includes('domain')
-                ? 'Your "from" email domain must be verified in Resend. Go to resend.com/domains to add and verify your domain, or use onboarding@resend.dev for testing.'
-                : err.message?.includes('API key')
+            hint: err.message?.toLowerCase().includes('domain')
+                ? 'Your "from" email domain is not verified in Resend. Go to resend.com/domains → add your domain → verify DNS records. Until then, use onboarding@resend.dev as the From address (emails will still be delivered).'
+                : err.message?.includes('API key') || err.message?.includes('Unauthorized')
                 ? 'Invalid Resend API key. Check RESEND_API_KEY in Railway environment variables.'
                 : undefined
         });

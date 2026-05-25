@@ -51,6 +51,17 @@ async function sendMail({ to, subject, text, html }) {
 
     if (error) {
         console.error('❌ Resend email failed:', JSON.stringify(error));
+        // If domain not verified, retry with Resend's shared test domain
+        if (error.message?.toLowerCase().includes('domain') || error.name === 'validation_error') {
+            console.warn('⚠️  From domain not verified, retrying with onboarding@resend.dev');
+            payload.from = 'onboarding@resend.dev';
+            const retry = await client.emails.send(payload);
+            if (retry.error) {
+                throw new Error(retry.error.message || JSON.stringify(retry.error));
+            }
+            console.log(`✅ Email sent to ${to} via onboarding@resend.dev (fallback) — id: ${retry.data.id}`);
+            return { messageId: retry.data.id };
+        }
         throw new Error(error.message || JSON.stringify(error));
     }
 
