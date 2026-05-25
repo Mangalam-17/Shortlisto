@@ -8,13 +8,13 @@ A modern full-stack recruitment platform built to streamline hiring workflows, c
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://shortlisto.vercel.app/)
 [![Backend API](https://img.shields.io/badge/Backend-API-blue?style=for-the-badge)](https://shortlisto-production.up.railway.app/health)
-[![React](https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react&logoColor=black)]
-[![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)]
-[![Express](https://img.shields.io/badge/Framework-Express-black?style=for-the-badge&logo=express)]
-[![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)]
-[![Socket.IO](https://img.shields.io/badge/Realtime-Socket.IO-black?style=for-the-badge&logo=socket.io)]
-[![Vercel](https://img.shields.io/badge/Frontend-Vercel-black?style=for-the-badge&logo=vercel)]
-[![Railway](https://img.shields.io/badge/Backend-Railway-purple?style=for-the-badge)]
+[![React](https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Framework-Express-black?style=for-the-badge&logo=express)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Socket.IO](https://img.shields.io/badge/Realtime-Socket.IO-black?style=for-the-badge&logo=socket.io)](https://socket.io/)
+[![Vercel](https://img.shields.io/badge/Frontend-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/)
+[![Railway](https://img.shields.io/badge/Backend-Railway-purple?style=for-the-badge)](https://railway.app/)
 
 </div>
 
