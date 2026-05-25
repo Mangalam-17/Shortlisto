@@ -172,7 +172,7 @@ The platform is built with a scalable production-style architecture using modern
 - BcryptJS
 - Winston Logging
 - Node Cache
-- Nodemailer
+- Resend (Email API)
 
 ### Database
 - MongoDB Atlas
@@ -253,7 +253,11 @@ PORT=8000
 NODE_ENV=development
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_super_secure_secret
-ALLOWED_ORIGINS=http://localhost:5173
+JWT_EXPIRE=1d
+CLIENT_URL=https://your-frontend-url.vercel.app
+ALLOWED_ORIGINS=https://your-frontend-url.vercel.app,http://localhost:5173
+BCRYPT_ROUNDS=12
+RESEND_API_KEY=your_resend_api_key
 ```
 
 ---
@@ -304,13 +308,14 @@ Available backend modules:
 
 ## 📸 Screenshots
 
-Add your application screenshots here:
+### 🏠 Hero / Landing Page
+![Hero Page](./screenshots/HeroPage.png)
 
-```markdown
-![Dashboard](./screenshots/dashboard.png)
-![Assessment](./screenshots/assessment.png)
-![Candidate Management](./screenshots/candidates.png)
-```
+### 🔐 Login Page
+![Login Page](./screenshots/LoginPage.png)
+
+### 📝 Register Page
+![Register Page](./screenshots/RegisterPage.png)
 
 ---
 
