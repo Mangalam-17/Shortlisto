@@ -114,6 +114,15 @@ export default function LandingPage() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
+    // Set page title and meta description for this route
+    useEffect(() => {
+        document.title = 'Shortlisto — Smart Recruitment & Online Assessment Platform';
+        const desc = document.querySelector('meta[name="description"]');
+        if (desc) desc.setAttribute('content', 'Shortlisto is a recruitment management and online assessment platform. Create drives, conduct proctored MCQ tests, auto-score results, and get ranked shortlists instantly.');
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) canonical.setAttribute('href', 'https://shortlisto.vercel.app/');
+    }, []);
+
     // Navbar scroll detection
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 50);

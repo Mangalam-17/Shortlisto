@@ -1,0 +1,19 @@
+# robots.txt for Shortlisto
+# https://shortlisto.vercel.app/
+
+User-agent: *
+Allow: /
+
+# Block admin and assessment internals from indexing
+Disallow: /admin/
+Disallow: /assessment/live
+Disallow: /assessment/waiting-room
+Disallow: /assessment/instructions
+Disallow: /assessment/thank-you
+Disallow: /assessment/ended
+
+# Allow public pages
+Allow: /$
+Allow: /register/
+
+Sitemap: https://shortlisto.vercel.app/sitemap.xml

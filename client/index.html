@@ -3,13 +3,144 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shortlisto</title>
+
+  <!-- ═══════════════════════════════════════════
+       PRIMARY SEO
+  ═══════════════════════════════════════════ -->
+  <title>Shortlisto — Smart Recruitment & Online Assessment Platform</title>
+  <meta name="description" content="Shortlisto is a recruitment management and online assessment platform. Create drives, conduct proctored MCQ tests, auto-score results, and get ranked shortlists instantly." />
+  <meta name="keywords" content="shortlisto, recruitment platform, online assessment, campus hiring, proctored test, candidate shortlisting, MCQ assessment, hiring automation" />
+  <meta name="author" content="Shortlisto" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <link rel="canonical" href="https://shortlisto.vercel.app/" />
+
+  <!-- ═══════════════════════════════════════════
+       OPEN GRAPH (Facebook / LinkedIn / WhatsApp)
+  ═══════════════════════════════════════════ -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Shortlisto" />
+  <meta property="og:title" content="Shortlisto — Smart Recruitment & Online Assessment Platform" />
+  <meta property="og:description" content="Automate your recruitment pipeline. Create drives, run proctored assessments, and get ranked shortlists — all in one place." />
+  <meta property="og:url" content="https://shortlisto.vercel.app/" />
+  <meta property="og:image" content="https://shortlisto.vercel.app/shortlisto-img.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Shortlisto recruitment and assessment platform dashboard" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- ═══════════════════════════════════════════
+       TWITTER / X CARD
+  ═══════════════════════════════════════════ -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Shortlisto — Smart Recruitment & Online Assessment Platform" />
+  <meta name="twitter:description" content="Automate your recruitment pipeline. Create drives, run proctored assessments, and get ranked shortlists — all in one place." />
+  <meta name="twitter:image" content="https://shortlisto.vercel.app/shortlisto-img.png" />
+  <meta name="twitter:image:alt" content="Shortlisto recruitment platform" />
+
+  <!-- ═══════════════════════════════════════════
+       FAVICON & ICONS
+  ═══════════════════════════════════════════ -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <meta name="theme-color" content="#E11D48" />
+
+  <!-- ═══════════════════════════════════════════
+       STRUCTURED DATA — JSON-LD (Google Rich Results)
+  ═══════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shortlisto",
+    "url": "https://shortlisto.vercel.app/",
+    "description": "Shortlisto is a full-stack recruitment management and online assessment platform. It enables recruiters to create drives, conduct proctored MCQ tests, auto-score results, and get ranked candidate shortlists instantly.",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "creator": {
+      "@type": "Person",
+      "name": "Mangalam Vaishre",
+      "url": "https://github.com/Mangalam-17"
+    },
+    "featureList": [
+      "Recruitment Drive Management",
+      "Proctored Online Assessments",
+      "Automated Candidate Shortlisting",
+      "Real-time Analytics Dashboard",
+      "Bulk Question Upload via CSV",
+      "Socket.IO Live Monitoring"
+    ],
+    "screenshot": "https://shortlisto.vercel.app/shortlisto-img.png"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Shortlisto",
+    "url": "https://shortlisto.vercel.app/",
+    "logo": "https://shortlisto.vercel.app/logo.png",
+    "description": "Shortlisto automates recruitment pipelines — from drive creation to ranked shortlists.",
+    "sameAs": [
+      "https://github.com/Mangalam-17"
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Shortlisto",
+    "url": "https://shortlisto.vercel.app/",
+    "description": "Smart recruitment management and online assessment platform",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://shortlisto.vercel.app/?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 </head>
 
 <body>
   <div id="root"></div>
+
+  <!-- Fallback content for crawlers / no-JS environments -->
+  <noscript>
+    <div style="font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px;">
+      <h1>Shortlisto — Smart Recruitment &amp; Online Assessment Platform</h1>
+      <p>
+        Shortlisto automates your recruitment pipeline — from drive creation to ranked shortlists.
+        Create recruitment drives, conduct proctored MCQ assessments, auto-score results, and get
+        a ranked candidate shortlist instantly.
+      </p>
+      <h2>Features</h2>
+      <ul>
+        <li>Recruitment Drive Management</li>
+        <li>Proctored Online Assessments with tab-switch detection</li>
+        <li>Automated Candidate Shortlisting</li>
+        <li>Real-time Analytics Dashboard</li>
+        <li>Bulk Question Upload via CSV/Excel</li>
+        <li>Live Monitoring via Socket.IO</li>
+      </ul>
+      <p>
+        <a href="/admin/register">Get Started Free</a> |
+        <a href="/admin/login">Sign In</a>
+      </p>
+    </div>
+  </noscript>
+
   <script type="module" src="/src/main.jsx"></script>
 </body>
 
