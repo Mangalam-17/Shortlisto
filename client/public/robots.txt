@@ -3,17 +3,15 @@
 
 User-agent: *
 Allow: /
+Allow: /admin/login
+Allow: /admin/register
 
-# Block admin and assessment internals from indexing
+# Block only internal authenticated/private pages
 Disallow: /admin/
 Disallow: /assessment/live
 Disallow: /assessment/waiting-room
 Disallow: /assessment/instructions
 Disallow: /assessment/thank-you
 Disallow: /assessment/ended
-
-# Allow public pages
-Allow: /$
-Allow: /register/
 
 Sitemap: https://shortlisto.vercel.app/sitemap.xml
